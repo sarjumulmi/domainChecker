@@ -21,3 +21,7 @@ exports.getDomains =  (req, res) => {
     res.render('home', {title: 'Domain Checker', error: error.response.data});
   });
 }
+
+exports.addDomain = (req, res) => {
+  res.json(req.body)
+}

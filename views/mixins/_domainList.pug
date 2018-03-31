@@ -1,9 +1,13 @@
 mixin domainList(domain)
   list.list-group-item
     .list-group-item-action.flex-column.align-items-start
-      form
-        p.mb-1(name="name") Domain Name: #{domain.domain_name}
-        p.mb-1(name="rating") Rating: #{domain.thirty_day_score}
+      form(action="/addDomain", method="POST")
+        p.mb-1
+          label(for="name") Domain Name:&nbsp;   
+          input(name="name" value=domain.domain_name readOnly)
+        p.mb-1
+          label(for="rating") Rating:&nbsp;  
+          input(name="rating" value=domain.thirty_day_score readOnly)
         button.btn.btn-primary.btn-sm(type="submit") Add to WishList
       
   //- pre=JSON.stringify(domain, null, 2)
