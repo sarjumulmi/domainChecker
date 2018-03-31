@@ -2,7 +2,7 @@ extends layout
 block content
   .row
     .col-md-12
-      form
+      form(action="/getDomains", method="GET" )
         .form-group
           label(for="domain") Keyword
           input.form-control(type="text" name="domain")
