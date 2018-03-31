@@ -14,9 +14,10 @@ exports.getDomains =  (req, res) => {
   axios.get(url,
     {headers: {'X-DOMAINSCOPE-APIKEY': `${API_KEY}`}}
   ).then(response => {
-    console.log(response.data);
-    res.json({url:url});
-  })
-
-
+    res.render('home', {title: 'Domain Checker', domains: response.data.domains});
+  }).catch(error => {
+    console.log('oooops!!')
+    console.error(error)
+    res.render('home', {title: 'Domain Checker', error: error.response.data});
+  });
 }

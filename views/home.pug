@@ -1,4 +1,7 @@
 extends layout
+
+include mixins/_domainList
+
 block content
   .row
     .col-md-12
@@ -9,4 +12,14 @@ block content
         .row.justify-content-center
           .col-md-12.col--center
             button.btn.btn-primary(type="submit") Get Popular Domains
-          
+  if domains 
+    h2 List of available domains
+    .list-group
+      each domain in domains
+        +domainList(domain)
+      
+      
+    //- 
+    
+      
+    
