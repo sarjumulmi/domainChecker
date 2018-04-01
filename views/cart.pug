@@ -1,0 +1,13 @@
+extends layout
+
+block content 
+  .row
+    .col-md-12
+      h2 Domain Cart
+      .list-group
+        each domain in domains
+          li.list-group-item
+            .list-group-item-action.flex-column.align-items-start
+              p.mb-1 Domain Name: #{domain.name}
+              p.mb-1 Rating: #{domain.rating}
+          
