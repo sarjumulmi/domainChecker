@@ -4,10 +4,10 @@ mixin domainList(domain)
       form(action="/addDomain", method="POST")
         p.mb-1
           label(for="name") Domain Name:&nbsp;   
-          input(name="name" value=domain.domain_name readOnly)
+          input.form-control(name="name" value=domain.domain_name readOnly)
         p.mb-1
           label(for="rating") Rating:&nbsp;  
-          input(name="rating" value=domain.thirty_day_score readOnly)
+          input.form-control(name="rating" value=domain.thirty_day_score readOnly)
         button.btn.btn-primary.btn-sm(type="submit") Add to WishList
       
   //- pre=JSON.stringify(domain, null, 2)
