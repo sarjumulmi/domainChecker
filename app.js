@@ -14,7 +14,7 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use('/', routes);
 
-app.set('port', process.env.PORT || 7777);
+app.set('port', process.env.PORT || 8000);
 const server = app.listen(app.get('port'), () => {
   console.log(`Express running → PORT ${server.address().port}`)
 })
