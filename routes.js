@@ -3,7 +3,8 @@ const app = require('./app');
 const domainController = require('./controllers/domainController');
 
 const router = express.Router();
-router.use(function (request, response, next) {
+// setup CORS
+router.use(function(request, response, next) {
   console.log("REQUEST:" + request.method + "   " + request.url);
   console.log("BODY:" + JSON.stringify(request.body));
   response.setHeader('Access-Control-Allow-Origin', '*');

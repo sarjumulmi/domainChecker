@@ -3,7 +3,7 @@ const axios = require('axios');
 
 const API_KEY = 'c06e7c44f16cc2dcd59f33ee4709ac78';
 const BASE_URL = 'https://domainscope.com/api/v2/domains/nxd?keyword=';
-
+oracledb.autoCommit = true;
 
 exports.index = (req, res) => {
   res.render('home', {title: 'Domain Checker'});
@@ -26,9 +26,9 @@ exports.getDomains =  (req, res) => {
 //handle db connection operation
 function handleDBOperation(request, response, cb) {
   const connectionProperties = {
-    user: "system",//process.env.DBAAS_USER_NAME || "oracle",
-    password: "#Fairfax2018",//process.env.DBAAS_USER_PASSWORD || "oracle",
-    connectString: "129.157.178.222/PDB1.595583445.oraclecloud.internal"//process.env.DBAAS_DEFAULT_CONNECT_DESCRIPTOR || "localhost/xe"
+    user: process.env.DBAAS_USER_NAME ||  "system",//process.env.DBAAS_USER_NAME,
+    password: process.env.DBAAS_USER_PASSWORD || "#Fairfax2018",//process.env.DBAAS_USER_PASSWORD,
+    connectString: process.env.DBAAS_DEFAULT_CONNECT_DESCRIPTOR || "129.157.178.222/PDB1.595583445.oraclecloud.internal"//process.env.DBAAS_DEFAULT_CONNECT_DESCRIPTOR
   };
   oracledb.getConnection(connectionProperties, function(err, connection) {
     if(err) {
@@ -78,6 +78,20 @@ exports.getSavedDomains = function (request, response) {
   });
 }
 
-exports.addDomain = (req, res) => {
-  res.json(req.body)
+exports.addDomain = function(request, response) {
+  handleDBOperation(request, response, function(request, response, connection) {
+    connection.execute("INSERT INTO DOMAINLIST (ID, DOMAIN, RATING) VALUES (DOMAIN_SEQ.nextVal, :domain, :rating)",
+    [request.body.name, request.body.rating], function (err, result) {
+      if(err) {
+        console.error(err.message);
+        response.status(500).send("Error saving domain to DB");
+        doRelease(connection);
+        return;
+      }
+      console.log(result);
+      response.redirect('/');
+      doRelease(connection);
+    });
+  });
+
 }
