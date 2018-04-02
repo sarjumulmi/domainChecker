@@ -28,39 +28,6 @@ exports.getDomains =  (req, res) => {
   });
 }
 
-//handle db connection operation
-function handleDBOperation(request, response, cb) {
-  const connectionProperties = {
-    user: process.env.DBAAS_USER_NAME ||  "system",//process.env.DBAAS_USER_NAME,
-    password: process.env.DBAAS_USER_PASSWORD || "#Fairfax2018",//process.env.DBAAS_USER_PASSWORD,
-    connectString: process.env.DBAAS_DEFAULT_CONNECT_DESCRIPTOR || "129.157.178.222/PDB1.595583445.oraclecloud.internal"//process.env.DBAAS_DEFAULT_CONNECT_DESCRIPTOR
-  };
-  oracledb.getConnection(connectionProperties, function(err, connection) {
-    if(err) {
-      console.log(err.message);
-      response.writeHead(500, {'Content-Type': 'application/json'});
-      response.end(JSON.stringify({
-        status: 500,
-        message: "Error connecting to DB",
-        detailed_message: err.message
-        }
-      ));
-      return;
-    }
-    cb(request, response, connection);
-  })
-}
-
-// release DB connection
-function doRelease(connection) {
-  connection.release(function(err) {
-    if (err) {
-      console.log('oooops');
-      console.error(err.message);
-    }
-  });
-}
-
 exports.getSavedDomains = function (request, response) {
   let conn; //for scoping
   oracledb.getConnection(connectionProperties)
@@ -92,19 +59,28 @@ exports.getSavedDomains = function (request, response) {
 }
 
 exports.addDomain = function(request, response) {
-  handleDBOperation(request, response, function(request, response, connection) {
-    connection.execute("INSERT INTO DOMAINLIST (ID, DOMAIN, RATING) VALUES (DOMAIN_SEQ.nextVal, :domain, :rating)",
-    [request.body.name, request.body.rating], function (err, result) {
-      if(err) {
+  let conn; //for scoping
+  oracledb.getConnection(connectionProperties)
+    .then(c => {
+      console.log('Connected to db.')
+      conn = c;
+      return conn.execute(
+        "INSERT INTO DOMAINLIST (ID, DOMAIN, RATING) VALUES (DOMAIN_SEQ.nextVal, :domain, :rating)",
+        [request.body.name, request.body.rating]
+      )
+      .then(result => {
+        console.log(result);
+        response.redirect('/');
+        return conn.close();
+      })
+      .catch(err => {
         console.error(err.message);
         response.status(500).send("Error saving domain to DB");
-        doRelease(connection);
-        return;
-      }
-      console.log(result);
-      response.redirect('/');
-      doRelease(connection);
+        return conn.close();
+      })
+    })
+    .catch(err => {
+      console.error(err.message);
+      response.status(500).send("Error closing connection");
     });
-  });
-
 }
