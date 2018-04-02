@@ -3,6 +3,11 @@ const axios = require('axios');
 
 const API_KEY = 'c06e7c44f16cc2dcd59f33ee4709ac78';
 const BASE_URL = 'https://domainscope.com/api/v2/domains/nxd?keyword=';
+const connectionProperties = {
+  user: process.env.DBAAS_USER_NAME ||  "system",//process.env.DBAAS_USER_NAME,
+  password: process.env.DBAAS_USER_PASSWORD || "#Fairfax2018",//process.env.DBAAS_USER_PASSWORD,
+  connectString: process.env.DBAAS_DEFAULT_CONNECT_DESCRIPTOR || "129.157.178.222/PDB1.595583445.oraclecloud.internal"//process.env.DBAAS_DEFAULT_CONNECT_DESCRIPTOR
+};
 oracledb.autoCommit = true;
 
 exports.index = (req, res) => {
@@ -57,25 +62,33 @@ function doRelease(connection) {
 }
 
 exports.getSavedDomains = function (request, response) {
-  handleDBOperation(request, response, function(request, response, connection) {
-    connection.execute("SELECT * FROM domainlist",{},
-      { outFormat: oracledb.OBJECT },
-      function (err, result) {
-        if (err) {
-          console.error(err.message);
-          response.status(500).send("Error getting data from DB");
-          doRelease(connection);
-          return;
-        }
-        console.log("RESULTSET:" + JSON.stringify(result));
-        var domains = [];
+  let conn; //for scoping
+  oracledb.getConnection(connectionProperties)
+    .then(c => {
+      console.log('Connected to db.')
+      conn = c;
+      return conn.execute(
+        "SELECT * FROM domainlist",{},
+        { outFormat: oracledb.OBJECT }
+      )
+      .then(result => {
+        const domains = [];
         result.rows.forEach(function (element) {
           domains.push({ id: element.ID, name: element.DOMAIN, rating: element.RATING });
         }, this);
         response.render('cart', {title:'Cart', domains: domains});
-        doRelease(connection);
-      });
-  });
+        return conn.close();
+      })
+      .catch(err => {
+        console.error(err.message);
+        response.status(500).send("Error getting data from DB");
+        return conn.close();
+      })
+    })
+    .catch(err => {
+      console.error(err.message);
+      response.status(500).send("Error closing connection");
+    })
 }
 
 exports.addDomain = function(request, response) {
