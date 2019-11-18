@@ -1,12 +1,12 @@
 const oracledb = require('oracledb');
 const axios = require('axios');
 
-const API_KEY = 'c06e7c44f16cc2dcd59f33ee4709ac78';
+const API_KEY = process.env.API_KEY;
 const BASE_URL = 'https://domainscope.com/api/v2/domains/nxd?keyword=';
 const connectionProperties = {
-  user: process.env.DBAAS_USER_NAME ||  "system",//process.env.DBAAS_USER_NAME,
-  password: process.env.DBAAS_USER_PASSWORD || "#Fairfax2018",//process.env.DBAAS_USER_PASSWORD,
-  connectString: process.env.DBAAS_DEFAULT_CONNECT_DESCRIPTOR || "129.157.178.222/PDB1.595583445.oraclecloud.internal"//process.env.DBAAS_DEFAULT_CONNECT_DESCRIPTOR
+  user: process.env.DBAAS_USER_NAME,//process.env.DBAAS_USER_NAME,
+  password: process.env.DBAAS_USER_PASSWORD,//process.env.DBAAS_USER_PASSWORD,
+  connectString: process.env.DBAAS_DEFAULT_CONNECT_DESCRIPTOR //process.env.DBAAS_DEFAULT_CONNECT_DESCRIPTOR
 };
 oracledb.autoCommit = true;
 
